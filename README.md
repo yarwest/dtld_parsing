@@ -1,23 +1,9 @@
-# Important information (05/2020)
-
-**05/2020: The label format changed from .yml to .json**. This should help to load the dataset significantly faster (especially in Python). Moreover the following changed:
-
-1. **Class Identity is replaced by attributes dictionary**. The attributes dictionary contains the keys "direction", "relevance", "occlusion", "orientation", "aspects", "state" and "pictogram". New since v2.0 is the "reflection" attribute.
-2. Some labels may have the items **("aspects", "unknown"), ("state", "unknown") or ("pictogram", "unknown")**. This differs to the labels in the yml format, which always had one default value even if the label information changed. Note that due to this your results on json max differ to .yml
-3. **MATLAB reader is deprecated**. If you want to use .json in MATLAB you have to write your own reader. Do not hesitate to create a pull request.
-4. **API in C++ and Python** slightly **changed**. Take a look into the code!
-
-The amount of overall labels/images is **NOT** changed. The image data itself is also untouched.
-
-For everybody who still wants to work with the old .yml files: You can simply checkout the state tagged as "v1". If you are not able to see the tag do not forget to fetch & pull.
-
 # The DriveU Traffic Light Dataset (DTLD): Introduction and Comparison with Existing Datasets
 This repository provides code for parsing the DriveU Traffic Light Dataset (DTLD), which is published in the course of our 2018 ICRA publication "The DriveU Traffic Light Dataset: Introduction and Comparison with Existing Datasets".
 
 ## Paper
 Paper see https://ieeexplore.ieee.org/document/8460737.
 ## Download the dataset
-**INFO (11/27/2018): The Dataset is online now!**
 
 The data can be downloaded from http://www.traffic-light-data.com/.
 
@@ -38,25 +24,6 @@ NEW v2 04/2021: json label format
         ├── Koeln            # Contains all routes of Cologne
         ├── DTLD_labels_v1.0 # Old labels (v1.0) in yml-format
         ├── DTLD_labels_v2.0 # New labels (v2.0) in json-format
-        ├── LICENSE          # License
-        └── README.md        # Readme
-
-DEPRECATED: DTLD_v1 (yml-Files)
-
-    .
-    ├── DTLD                 # DTLD
-        ├── Berlin           # Contains all Routes of Berlin
-        ├── Bochum           # Contains all routes of Bochum
-        ├── Bremen           # Contains all routes of Bremen
-        ├── Dortmund         # Contains all routes of Dortmund
-        ├── Duesseldorf      # Contains all routes of Duesseldorf
-        ├── Essen            # Contains all routes of Essen
-        ├── Frankfurt        # Contains all routes of Frankfurt
-        ├── Fulda            # Contains all routes of Fulda
-        ├── Hannover         # Contains all routes of Hannover
-        ├── Kassel           # Contains all routes of Kassel
-        ├── Koeln            # Contains all routes of Cologne
-        ├── DTLD_labels      # Labels in yml-format
         ├── LICENSE          # License
         └── README.md        # Readme
 
@@ -92,46 +59,38 @@ For each sequences, images and disparity images are available. Filename indicate
 #### 1. Check our documentation
 Documentation is stored at /dtld_parsing/doc/. We give insights into the data and explain how to interpret it.
 #### 2. Change absolute paths
-Do not forget to change the absolute paths of the images in all label files (.yml).
+Do not forget to change the absolute paths of the images in all label files.
 
 ## Using the dataset
-### C++
 
-1. Clone the dtld_parsing respository
-```Shell
-git clone https://github.com/julimueller/dtld_parsing
-```
-2. Build everything
-```Shell
-1. cd dtld_parsing/c++/driveu_dataset/
-2. mkdir build && cd build
-3. cmake .. -DCMAKE_INSTALL_PREFIX="YOUR_PATH" && make -j12 install
-4. driveu_test -label_file <label_file_path.yml> -calib_dir <path_to_calib> -data_base_dir <dtld_dir>
-
-```
-Note: "YOUR_PATH" has to be in LD_LIBRARY_PATH. DTLD_DIR is the directory where all .zips should be unpacked.
-The visualization should look like this
-
-![alt text](https://github.com/julimueller/dtld_parsing/blob/master/images/c%2B%2B_demo.png)
 ### Python
-UPDATE 03-26-2020: Python modules were changed to Python 3.
-```Shell
-git clone https://github.com/julimueller/dtld_parsing
-cd dtld_parsing
-python3 setup.py install
-cd python
-python3 load_dtld.py --label_file <label_file_path.yml> --calib_dir <path_to_calib> --data_base_dir <dtld_dir>
 
-```
-Result should look like above
-### MATLAB
+1. Download data & DTLD_Labels_v2.0.zip from https://cloudstore.uni-ulm.de/training/DTLD
+2. Clone GitHub repository containing parsing scrips
 
-NOTE 05/2020: MATLAB support is deprecated and will likely not be added for the new label format (json).
+`git clone https://github.com/julimueller/dtld_parsing`
 
-Run main.m
+3. Enter newly created directory
 
-Results should look like this
-![alt text](https://github.com/julimueller/dtld_parsing/blob/master/images/matlab_demo.png)
+`cd dtld_parsing`
+
+4. Create a virtual Python environment in which we can install dependencies required by the parsing scripts:
+
+`python3 -m venv .venv`
+
+5. After creation, activate the virtual environment like so:
+
+`source .venv/bin/activate`
+
+*You can verify that this was successful by running `which python3`, which shows the path of the python that you're currently using, if this shows a path ending in `/dtld_parsing/.venv/bin/python3` the virtual environment is being used successfully*
+
+6. Run the setup script to install required dependencies using:
+
+`python3 setup.py install`
+
+7. Run the Python script to load the data, make sure that the label file & exported data are in the dtld_parsing folder, & provide the correct path to the label file `<LABEL_FILE_PATH>`:
+
+`python3 python/load_dtld.py --label_file <LABEL_FILE_PATH> --calib_dir calibration/`
 
 ## Citation
 Do not forget to cite our work for the case you used DTLD
