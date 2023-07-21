@@ -246,7 +246,7 @@ class CalibrationData:
         with open(path) as infile:
             for i in range(skip_lines):
                 infile.readline()
-            data = yaml.load(infile)
+            data = yaml.load(infile, Loader=yaml.Loader)
             matrix = np.reshape(data["data"], (data["rows"], data["cols"]))
 
         return matrix

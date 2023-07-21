@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import logging
 import sys
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -82,6 +83,10 @@ def main(args):
     # create axes
     ax1 = plt.subplot(111)
 
+    # Create output directory if not exists
+    if not os.path.exists('./out'):
+        os.makedirs('./out/')
+
     # Visualize image by image
     for idx_d, img in enumerate(database.images):
 
@@ -126,7 +131,10 @@ def main(args):
         plt.ion()
         im1.set_data(img_concat_rgb)
         plt.pause(0.001)
-        plt.draw()
+        
+        fileName = img.file_path.replace(".tiff","").replace(".","").replace("/", "_")[1:]
+        plt.savefig(f'./out/{fileName}.png', bbox_inches='tight', pad_inches = 0)
+        print("Stored file: ", fileName)
 
 
 if __name__ == "__main__":
