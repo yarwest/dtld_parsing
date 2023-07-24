@@ -61,36 +61,41 @@ Documentation is stored at /dtld_parsing/doc/. We give insights into the data an
 #### 2. Change absolute paths
 Do not forget to change the absolute paths of the images in all label files.
 
-## Using the dataset
+## Loading the dataset
 
 ### Python
 
 1. Download data & DTLD_Labels_v2.0.zip from https://cloudstore.uni-ulm.de/training/DTLD
-2. Clone GitHub repository containing parsing scrips
 
-`git clone https://github.com/julimueller/dtld_parsing`
-
-3. Enter newly created directory
-
-`cd dtld_parsing`
-
-4. Create a virtual Python environment in which we can install dependencies required by the parsing scripts:
+2. Create a virtual Python environment in which we can install dependencies required by the parsing scripts:
 
 `python3 -m venv .venv`
 
-5. After creation, activate the virtual environment like so:
+3. After creation, activate the virtual environment like so:
 
 `source .venv/bin/activate`
 
 *You can verify that this was successful by running `which python3`, which shows the path of the python that you're currently using, if this shows a path ending in `/dtld_parsing/.venv/bin/python3` the virtual environment is being used successfully*
 
-6. Run the setup script to install required dependencies using:
+4. Run the setup script to install required dependencies using:
 
 `python3 setup.py install`
 
-7. Run the Python script to load the data, make sure that the label file & exported data are in the dtld_parsing folder, & provide the correct path to the label file `<LABEL_FILE_PATH>`:
+5. Run the Python script to load the data, make sure that the label file & exported data are in the dtld_parsing folder, & provide the correct path to the label file `<LABEL_FILE_PATH>`:
 
 `python3 python/load_dtld.py --label_file <LABEL_FILE_PATH> --calib_dir calibration/`
+
+## Analyze dataset
+
+1. Download data
+
+2. Run the setup script to install required dependencies using:
+
+`python3 setup.py install`
+
+3. Run the Python script to analyze the data, make sure that the label file & exported data are in the dtld_parsing folder, & provide the correct path to the label file `<LABEL_FILE_PATH>`:
+
+`python3 python/analyze_dtld.py --label_file <LABEL_FILE_PATH>`
 
 ## Citation
 Do not forget to cite our work for the case you used DTLD
