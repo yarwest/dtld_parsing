@@ -4,7 +4,7 @@ import logging
 import sys
 import os
 import json
-
+from PIL import Image
 import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
@@ -61,27 +61,58 @@ def main(args):
     files_count = 0
 
     img_dfs = []
+    image_paths = []
     label_dfs = []
 
     for image in images["images"]:
 
         img_dfs.append(pd.DataFrame(image))
 
+        image_paths.append(image['image_path'])
+
         files_count += 1
 
         label_dfs.append(pd.DataFrame.from_dict(image["labels"]))
 
+    label_df = pd.concat(label_dfs)
+
     print("File count: ", files_count)
 
-    print_unique_lights(pd.concat(label_dfs))
+    print_unique_lights(label_df)
     print_separator()
-    print_state_distribution(pd.concat(label_dfs))
+    print_missing_values(label_df)
     print_separator()
-    print_direction_distribution(pd.concat(label_dfs))
+    print_image_analysis(image_paths)
 
-def print_missing_values():
-    # .isnull().sum()
-    print("")
+    attributes_df = pd.DataFrame([at for at in label_df.loc[:,"attributes"] ])
+
+    print_separator()
+    print_state_distribution(attributes_df)
+    print_separator()
+    print_direction_distribution(attributes_df)
+
+def print_missing_values(df):
+    print("Empty values")
+    print(df.isnull().sum())
+
+def print_image_analysis(images):
+    # Zbieranie danych na temat pojedynczych klatek
+    img_properties_dict = {"name": [], "width": [], "height": [], "format": [], "mode": []}
+
+    for image_path in images:
+        img = Image.open(image_path)
+        name = os.path.basename(image_path)
+        img_properties_dict["name"].append(name)
+        img_properties_dict["width"].append(img.width)
+        img_properties_dict["height"].append(img.height)
+        img_properties_dict["format"].append(img.format)
+        img_properties_dict["mode"].append(img.mode)
+
+    img_properties = pd.DataFrame(img_properties_dict)
+
+    print("Zliczanie unikalnych parametrów klatek:")
+    img_properties_groups = img_properties.drop(["name"], axis=1).value_counts()
+    print(img_properties_groups)
 
 def print_unique_lights(df):
     lights = df["track_id"].nunique()
@@ -89,9 +120,7 @@ def print_unique_lights(df):
     print("Light count: ", lights)
     print(light_count)
 
-def print_state_distribution(df):
-    attributes_df = pd.DataFrame([at for at in df.loc[:,"attributes"] ])
-
+def print_state_distribution(attributes_df):
     states = attributes_df["state"].unique()
     print("Traffic light states:")
     print(states)
@@ -109,9 +138,7 @@ def print_state_distribution(df):
     )
     plt.savefig('./out/traffic_states_distribution.png')
 
-def print_direction_distribution(df):
-    attributes_df = pd.DataFrame([at for at in df.loc[:,"attributes"] ])
-
+def print_direction_distribution(attributes_df):
     directions = attributes_df["direction"].unique()
     print("Traffic light directions:")
     print(directions)
