@@ -80,20 +80,22 @@ def main(args):
 
     print_unique_lights(label_df)
     print_separator()
-    print_missing_values(label_df)
-    print_separator()
-    print_image_analysis(image_paths)
 
     attributes_df = pd.DataFrame([at for at in label_df.loc[:,"attributes"] ])
+
+    print_missing_values(label_df, attributes_df)
+    print_separator()
+    print_image_analysis(image_paths)
 
     print_separator()
     print_state_distribution(attributes_df)
     print_separator()
     print_direction_distribution(attributes_df)
 
-def print_missing_values(df):
+def print_missing_values(df, attr_df):
     print("Empty values")
     print(df.isnull().sum())
+    print(attr_df.isnull().sum())
 
 def print_image_analysis(images):
     # Zbieranie danych na temat pojedynczych klatek
