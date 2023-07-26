@@ -83,7 +83,7 @@ Do not forget to change the absolute paths of the images in all label files.
 
 5. Run the Python script to load the data, make sure that the label file & exported data are in the dtld_parsing folder, & provide the correct path to the label file `<LABEL_FILE_PATH>`:
 
-`python3 python/load_dtld.py --label_file <LABEL_FILE_PATH> --calib_dir calibration/`
+`python3 python/load_dtld.py --label_file <LABEL_FILE_PATH>`
 
 ## Analyze dataset
 

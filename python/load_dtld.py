@@ -8,9 +8,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from dtld_parsing.calibration import CalibrationData
 from dtld_parsing.driveu_dataset import DriveuDatabase
-from dtld_parsing.three_dimensional_position import ThreeDimensionalPosition
 
 
 __author__ = "Andreas Fregin, Julian Mueller and Klaus Dietmayer"
@@ -34,7 +32,6 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--label_file", help="DTLD label files (.json)", type=str, required=True)
-    parser.add_argument("--calib_dir", help="calibration directory where .yml are stored", type=str, required=True)
     parser.add_argument(
         "--data_base_dir",
         default="",
@@ -53,20 +50,6 @@ def main(args):
     if not database.open(args.data_base_dir):
         return False
 
-    # Load calibration
-    calibration_left = CalibrationData()
-    intrinsic_left = calibration_left.load_intrinsic_matrix(args.calib_dir + "/intrinsic_left.yml")
-    rectification_left = calibration_left.load_rectification_matrix(args.calib_dir + "/rectification_left.yml")
-    projection_left = calibration_left.load_projection_matrix(args.calib_dir + "/projection_left.yml")
-    extrinsic = calibration_left.load_extrinsic_matrix(args.calib_dir + "/extrinsic.yml")
-    distortion_left = calibration_left.load_distortion_matrix(args.calib_dir + "/distortion_left.yml")
-
-    logging.info("Intrinsic Matrix:\n\n{}\n".format(intrinsic_left))
-    logging.info("Extrinsic Matrix:\n\n{}\n".format(extrinsic))
-    logging.info("Projection Matrix:\n\n{}\n".format(projection_left))
-    logging.info("Rectification Matrix:\n\n{}\n".format(rectification_left))
-    logging.info("Distortion Matrix:\n\n{}\n".format(distortion_left))
-
     # create axes
     ax1 = plt.subplot(111)
     plt.axis('off')
@@ -75,18 +58,19 @@ def main(args):
     if not os.path.exists('./out'):
         os.makedirs('./out/')
 
+    fig = plt.gcf()
+    fig.set_size_inches(2048/72, 1024/72)
+
+    fig.subplots_adjust(bottom = 0)
+    fig.subplots_adjust(top = 1)
+    fig.subplots_adjust(right = 1)
+    fig.subplots_adjust(left = 0)
+
     # Visualize image by image
     for idx_d, img in enumerate(database.images):
 
-        # Get color image with labels
+        # Get color image without labels
         img_color = img.get_labeled_image()
-        fig = plt.gcf()
-        fig.set_size_inches(2048/72, 1024/72)
-
-        fig.subplots_adjust(bottom = 0)
-        fig.subplots_adjust(top = 1)
-        fig.subplots_adjust(right = 1)
-        fig.subplots_adjust(left = 0)
 
         img_color = img_color[..., ::-1]
         if idx_d == 0:
