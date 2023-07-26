@@ -6,6 +6,7 @@ import os
 import json
 from PIL import Image
 import pandas as pd
+import duplicates
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -88,6 +89,9 @@ def main(args):
     print_image_analysis(image_paths)
 
     print_separator()
+    print_duplicate_files(args.label_file.replace(".json", ""))
+
+    print_separator()
     print_state_distribution(attributes_df)
     print_separator()
     print_pictogram_distribution(attributes_df)
@@ -117,6 +121,15 @@ def print_image_analysis(images):
     print("Zliczanie unikalnych parametrów klatek:")
     img_properties_groups = img_properties.drop(["name"], axis=1).value_counts()
     print(img_properties_groups)
+
+def print_duplicate_files(path):
+    # Pobieranie listy wszystkich zduplikowanych plików wraz z ich haszami
+    all_duplicates = duplicates.list_all_duplicates(path, ext=".tiff", fastscan=True)
+
+    print()  # Wyjście duplicates.list_all_duplicates czasem przykrywa poniższe informacje
+    print(f'Liczba duplikatów = {all_duplicates["hash"].nunique()}')
+    print("Duplikaty:")
+    print(all_duplicates["file"])
 
 def print_unique_lights(df):
     lights = df["track_id"].nunique()
