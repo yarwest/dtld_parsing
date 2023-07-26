@@ -90,6 +90,8 @@ def main(args):
     print_separator()
     print_state_distribution(attributes_df)
     print_separator()
+    print_pictogram_distribution(attributes_df)
+    print_separator()
     print_direction_distribution(attributes_df)
 
 def print_missing_values(df, attr_df):
@@ -121,6 +123,24 @@ def print_unique_lights(df):
     light_count = df["track_id"].value_counts()
     print("Light count: ", lights)
     print(light_count)
+
+def print_pictogram_distribution(attributes_df):
+    pictogram = attributes_df["pictogram"].unique()
+    print("Traffic light pictograms:")
+    print(pictogram)
+
+    pictogram_count = attributes_df["pictogram"].value_counts()
+    pictogram_freq = attributes_df["pictogram"].value_counts(normalize=True)
+    pictogram_params = pd.DataFrame({"Count": pictogram_count, "Frequency": pictogram_freq})
+    print("Probability distribution and class size:")
+    print(pictogram_params)
+
+    pictogram_count.plot(
+        kind="bar",
+        title=f'Numbers of individual pictograms of traffic lights in the dataset',
+        rot=45,
+    )
+    plt.savefig('./out/traffic_pictogram_distribution.png')
 
 def print_state_distribution(attributes_df):
     states = attributes_df["state"].unique()
