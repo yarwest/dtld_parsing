@@ -63,11 +63,9 @@ Do not forget to change the absolute paths of the images in all label files.
 
 ## Loading the dataset
 
-### Python
-
 1. Download data & DTLD_Labels_v2.0.zip from https://cloudstore.uni-ulm.de/training/DTLD
 
-2. Create a virtual Python environment in which we can install dependencies required by the parsing scripts:
+2. In order to isolate dependencies between different Python projects and prevent conflicting requirements, it is a best practice to use virtual environments. More info can be found [here](https://virtualenv.pypa.io/en/latest/). Create a virtual Python environment in which we can install dependencies required by the parsing scripts:
 
 `python3 -m venv .venv`
 
@@ -75,7 +73,7 @@ Do not forget to change the absolute paths of the images in all label files.
 
 `source .venv/bin/activate`
 
-*You can verify that this was successful by running `which python3`, which shows the path of the python that you're currently using, if this shows a path ending in `/dtld_parsing/.venv/bin/python3` the virtual environment is being used successfully*
+*You can verify that the virtual environment is being used by running `which python3`, which shows the path of the python installation that you're currently using, if this shows a path ending in `/dtld_parsing/.venv/bin/python3` the virtual environment is being used successfully*
 
 4. Run the setup script to install required dependencies using:
 
@@ -89,9 +87,7 @@ Do not forget to change the absolute paths of the images in all label files.
 
 1. Download data
 
-2. Run the setup script to install required dependencies using:
-
-`python3 setup.py install`
+2. Create a virtual environment and install the dependencies as mentioned in steps 2, 3 & 4 in the previous guide. Skip if you've already done these steps as part of loading the data set.
 
 3. Run the Python script to analyze the data, make sure that the label file & exported data are in the dtld_parsing folder, & provide the correct path to the label file `<LABEL_FILE_PATH>`:
 

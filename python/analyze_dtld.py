@@ -60,14 +60,10 @@ def main(args):
         os.makedirs('./out/')
 
     files_count = 0
-
-    img_dfs = []
     image_paths = []
     label_dfs = []
 
     for image in images["images"]:
-
-        img_dfs.append(pd.DataFrame(image))
 
         image_paths.append(image['image_path'])
 
