@@ -100,7 +100,7 @@ def print_missing_values(df, attr_df):
     print(attr_df.isnull().sum())
 
 def print_image_analysis(images):
-    # Zbieranie danych na temat pojedynczych klatek
+    # Collecting data regarding single frames
     img_properties_dict = {"name": [], "width": [], "height": [], "format": [], "mode": []}
 
     for image_path in images:
@@ -114,17 +114,17 @@ def print_image_analysis(images):
 
     img_properties = pd.DataFrame(img_properties_dict)
 
-    print("Zliczanie unikalnych parametrów klatek:")
+    print("Counting unique frame parameters:")
     img_properties_groups = img_properties.drop(["name"], axis=1).value_counts()
     print(img_properties_groups)
 
 def print_duplicate_files(path):
-    # Pobieranie listy wszystkich zduplikowanych plików wraz z ich haszami
+    # Download a list of all duplicate files with their hashes
     all_duplicates = duplicates.list_all_duplicates(path, ext=".tiff", fastscan=True)
 
-    print()  # Wyjście duplicates.list_all_duplicates czasem przykrywa poniższe informacje
-    print(f'Liczba duplikatów = {all_duplicates["hash"].nunique()}')
-    print("Duplikaty:")
+    print()  # The output of duplicates.list_all_duplicates sometimes covers the following information
+    print(f'Number of duplicates = {all_duplicates["hash"].nunique()}')
+    print("Duplicates:")
     print(all_duplicates["file"])
 
 def print_unique_lights(df):
