@@ -1,12 +1,25 @@
 import argparse
 import os
+import logging
+import numpy as np
+import sys
 
 import pytorch_lightning as pl
 import yaml
 
 from trafficlightdetection.neuralnet.model import FasterRcnnModel
-from trafficlightdetection.data.datamodule import LisaTrafficLightDataModule
+from trafficlightdetection.data.datamodule import LTLDDataModule
 
+np.set_printoptions(suppress=True)
+
+
+# Logging
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: " "%(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 def get_dataloader_num_workers(configuration):
     use_cpu_count = configuration["dataloaders"]["worker_per_cpu"]
@@ -17,7 +30,7 @@ def get_dataloader_num_workers(configuration):
 
 
 def is_tuning_required(configuration):
-    return configuration["trainer"]["auto_lr_find"] is True
+    return configuration["trainer"]["tune"] is True
 
 
 def train_and_test(configuration):
@@ -32,13 +45,9 @@ def train_and_test(configuration):
         early_stopping_min_delta=configuration["model"]["early_stopping_min_delta"],
     )
 
-    datamodule = LisaTrafficLightDataModule(
-        dataset_path=configuration["dataset"]["path"],
-        train_size=configuration["dataset"]["training_size"],
-        valid_size=configuration["dataset"]["validation_size"],
-        test_size=configuration["dataset"]["test_size"],
-        time_of_day=configuration["dataset"]["time_of_day"],
-        annotation_type=configuration["dataset"]["annotation_type"],
+    datamodule = LTLDDataModule(
+        train_label_path=configuration["dataset"]["train_label_file"],
+        test_label_path=configuration["dataset"]["test_label_file"],
         batch_size=configuration["dataloaders"]["batch_size"],
         num_workers=get_dataloader_num_workers(configuration),
         random_state=seed,
@@ -47,13 +56,14 @@ def train_and_test(configuration):
     trainer = pl.Trainer(
         default_root_dir=configuration["trainer"]["root_dir"],
         max_epochs=configuration["trainer"]["max_epochs"],
-        auto_lr_find=configuration["trainer"]["auto_lr_find"],
         limit_train_batches=configuration["trainer"]["limit_train_set"],
         limit_val_batches=configuration["trainer"]["limit_valid_set"],
         limit_test_batches=configuration["trainer"]["limit_test_set"],
         fast_dev_run=configuration["trainer"]["fast_dev_run"],
         deterministic=configuration["trainer"]["deterministic_trainer"],
-        gpus=1,
+        devices=2,
+        #TODO? maybe select the appropriate Accelerator by recognizing the machine you are on: accelerator="auto"
+        accelerator="auto",
         log_every_n_steps=1,
     )
 
@@ -74,6 +84,8 @@ def main(args):
     if args.print:
         print(configuration)
 
+
+
     train_and_test(configuration)
 
 
@@ -93,8 +105,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "configuration_path",
+        "--configuration_path",
         type=str,
+        default="configuration.yml",
+        required=False,
         help="A path to the YAML file with training configuration",
     )
 

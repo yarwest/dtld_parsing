@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 import pytorch_lightning as pl
-from sklearn.model_selection import train_test_split
+import pandas as pd
 
-from trafficlightdetection.data.dataset import LisaTrafficLightDataset
+from trafficlightdetection.data.dataset import LTLDDataset
 from trafficlightdetection.data.split import MultiLabelStratifiedSplitter
 from trafficlightdetection.data.transforms import (
     get_test_transforms,
@@ -14,30 +14,27 @@ from trafficlightdetection.data.transforms import (
 def collate_fn(batch):
     return tuple(zip(*batch))
 
+class LTLDDataModule(pl.LightningDataModule):
+    """
+    Class describing the DriveU Dataset containing a list of images
 
-class LisaTrafficLightDataModule(pl.LightningDataModule):
+    Attributes:
+        images (List of DriveuImage)  All images of the dataset
+        train_data_path (string):           Path of the dataset (.json)
+        train_data_path (string):           Path of the dataset (.json)
+    """
     def __init__(
         self,
-        dataset_path,
-        train_size=0.7,
-        valid_size=0.15,
-        test_size=0.15,
-        time_of_day="both",
-        annotation_type="BOX",
+        train_label_path,
+        test_label_path,
         batch_size=4,
         num_workers=1,
         random_state=None,
     ):
-        if train_size + valid_size + test_size != 1.0:
-            raise ValueError("Set sizes must sum up to 1.0")
-
         super().__init__()
-        self.dataset_path = dataset_path
-        self.train_size = train_size
-        self.valid_size = valid_size
-        self.test_size = test_size
-        self.time_of_day = time_of_day
-        self.annotation_type = annotation_type
+        self.images = []
+        self.train_label_path = train_label_path
+        self.test_label_path = test_label_path
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.random_state = random_state
@@ -46,40 +43,31 @@ class LisaTrafficLightDataModule(pl.LightningDataModule):
         pass
 
     def setup(self, stage):
-        transformed_dataset = LisaTrafficLightDataset(
-            self.dataset_path,
+        self.train_set = LTLDDataset(
+            self.train_label_path,
             get_training_transforms(),
-            time_of_day=self.time_of_day,
-            annotation_type=self.annotation_type,
         )
-        original_dataset = LisaTrafficLightDataset(
-            self.dataset_path,
+        original_train_dataset = LTLDDataset(
+            self.train_label_path,
             get_test_transforms(),
-            time_of_day=self.time_of_day,
-            annotation_type=self.annotation_type,
+        )
+        
+        self.test_set = LTLDDataset(
+            self.test_label_path,
+            get_test_transforms(),
         )
 
-        annotations = transformed_dataset.annotations
-        splitter = MultiLabelStratifiedSplitter(
-            annotations,
-            "filename",
-            "class",
-            train_size=self.train_size,
-            valid_size=self.valid_size,
-            test_size=self.test_size,
-            random_state=self.random_state,
-        )
-        splitter.split()
+        # splitter = MultiLabelStratifiedSplitter(
+        #     original_train_dataset.images,
+        #     "image_path",
+        #     "state",
+        #     random_state=self.random_state,
+        # )
+        # splitter.split()
 
-        self.train_set = torch.utils.data.Subset(
-            transformed_dataset, splitter.train_indices()
-        )
-        self.valid_set = torch.utils.data.Subset(
-            original_dataset, splitter.valid_indices()
-        )
-        self.test_set = torch.utils.data.Subset(
-            original_dataset, splitter.test_indices()
-        )
+        # self.valid_set = torch.utils.data.Subset(
+        #     original_train_dataset, splitter.valid_indices()
+        # )
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
@@ -90,14 +78,14 @@ class LisaTrafficLightDataModule(pl.LightningDataModule):
             collate_fn=collate_fn,
         )
 
-    def val_dataloader(self):
-        return torch.utils.data.DataLoader(
-            self.valid_set,
-            batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=self.num_workers,
-            collate_fn=collate_fn,
-        )
+    # def val_dataloader(self):
+    #     return torch.utils.data.DataLoader(
+    #         self.valid_set,
+    #         batch_size=self.batch_size,
+    #         shuffle=False,
+    #         num_workers=self.num_workers,
+    #         collate_fn=collate_fn,
+    #     )
 
     def test_dataloader(self):
         return torch.utils.data.DataLoader(

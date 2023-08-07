@@ -1,12 +1,8 @@
 seed: 314159
 
 dataset:
-    path: "data/lisa-traffic-light-dataset"
-    training_size: 0.70
-    validation_size: 0.15
-    test_size: 0.15
-    time_of_day: "both"
-    annotation_type: "BOX"
+    train_label_file: "./Bochum.json"
+    test_label_file: "./Bremen.json"
 
 dataloaders:
     worker_per_cpu: true
@@ -24,7 +20,7 @@ model:
 trainer:                                 
     root_dir: "models"
     max_epochs: 20
-    auto_lr_find: true
+    tune: false
     limit_train_set: 1.0
     limit_valid_set: 1.0
     limit_test_set: 1.0

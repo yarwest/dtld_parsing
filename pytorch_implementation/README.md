@@ -18,26 +18,19 @@ stworzony w ramach projektu. W podkatalogu `metrics` jest kod pochodzący z
 https://github.com/rafaelpadilla/review_object_detection_metrics zmodyfikowany
 na potrzeby projektu.
 
-### Konfiguracja środowiska
+## Opis EN
 
-W celu skonfigurowania środowiska i pobrania zbioru danych należy wywołać
-skrypt `setup.sh`. Wymaga on zainstalowanego programu `conda` oraz
-skonfigurowania dostępu do API Kaggle. Wywołanie:
+The code is in the `trafficlightdetection` directory. It contains the entire module 
+created within the project. In the `metrics` subdirectory there is code from
+https://github.com/rafaelpadilla/review_object_detection_metrics modified for the project.
+
+### Environment setup
+
+In order to set up the environment and download the dependencies, call
+`setup.sh` script. Call:
 
 ```bash
 ./setup.sh
-```
-
-Po uruchomieniu należy aktywować środowisko:  
-
-```bash
-conda activate tl-detection
-```
-
-Następnie należy zainstalować paczkę (`-e` dla trybu deweloperskiego):
-
-```bash
-pip install -e .
 ```
 
 ### Trenowanie sieci
@@ -45,20 +38,33 @@ pip install -e .
 Do trenowania sieci służy skrypt `train.py`. Po skonfigurowaniu środowiska
 wywołać w celu zapoznania się z parametrami:
 
+### Network training
+
+The `train.py` script is used to train the network. After setting up the environment
+call to see the parameters:
+
 ```bash
 python3 -m trafficlightdetection.train --help
 ```
 
 Konfiguracja wykorzystana w pracy znajduje się w pliku `configuration.yml`.
 
+The configuration used in the work is in the `configuration.yml` file.
+
 ### Dokonywanie predykcji
 
 Detekcja na pojedynczych zdjęciach jest możliwa dzięki skryptowi `predict.py`.
 Wywołanie poprzez:
+
+### Making predictions
+
+Detection on individual photos is possible thanks to the `predict.py` script.
+Call via:
 
 ```bash
 python3 -m trafficlightdetection.predict --help
 ```
 
 Model wykorzystany w pracy znajduje się w katalogu: 
+The model used in the work can be found in the catalog:
 `models/lightning_logs/version_2/checkpoints/epoch=5-step=38069.ckpt`

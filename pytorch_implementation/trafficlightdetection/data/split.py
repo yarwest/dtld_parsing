@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 class MultiLabelStratifiedSplitter:
     def __init__(
         self,
-        df,
+        collection,
         index_col,
         target_col,
         train_size=0.7,
@@ -14,7 +14,7 @@ class MultiLabelStratifiedSplitter:
         test_size=0.15,
         random_state=None,
     ):
-        self.df = df
+        self.collection = collection
         self.index_col = index_col
         self.target_col = target_col
         self.train_size = train_size
@@ -31,12 +31,16 @@ class MultiLabelStratifiedSplitter:
         valid_values = []
         test_values = []
 
-        backlog = self.df.copy(deep=True)
-        sorted_targets = backlog[self.target_col].value_counts(ascending=True)
+        # TODO: fix?
+        collection_df = pd.DataFrame(self.collection)
+        df = pd.DataFrame(pd.json_normalize(self.collection, ['labels']))
+        df = df.reset_index(drop=True).join(collection_df).reset_index(drop=True)
+
+        sorted_targets = df[f'attributes.{self.target_col}'].value_counts(ascending=True)
         adjusted_train_size = self.train_size / (1.0 - self.test_size)
 
         for target in sorted_targets.index.tolist():
-            target_rows = backlog.loc[backlog[self.target_col] == target]
+            target_rows = df.loc[df[f'attributes.{self.target_col}'] == target]
             target_values = target_rows[self.index_col].unique()
 
             target_train_valid_indices, target_test_indices = train_test_split(
@@ -55,9 +59,9 @@ class MultiLabelStratifiedSplitter:
             valid_values += target_values[target_valid_indices].tolist()
             test_values += target_values[target_test_indices].tolist()
 
-            backlog = backlog.loc[~backlog[self.index_col].isin(target_values)]
+            df = df.loc[~df[self.index_col].isin(target_values)]
 
-        unique_index_values = pd.Series(self.df[self.index_col].unique())
+        unique_index_values = pd.Series(collection_df[self.index_col].unique())
 
         self._train_values = unique_index_values.loc[
             unique_index_values.isin(train_values)

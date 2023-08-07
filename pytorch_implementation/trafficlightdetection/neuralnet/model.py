@@ -11,7 +11,7 @@ from trafficlightdetection.metrics.evaluators.pascal_voc_evaluator import (
 )
 from trafficlightdetection.metrics.utils.enumerators import MethodAveragePrecision
 from trafficlightdetection.neuralnet.utils import get_bounding_boxes
-from trafficlightdetection.data.dataset import LisaTrafficLightDataset
+from trafficlightdetection.data.dataset import LTLDDataset
 
 
 class FasterRcnnModel(pl.LightningModule):
@@ -38,8 +38,8 @@ class FasterRcnnModel(pl.LightningModule):
 
         # Konfiguracja modelu
         self.model = torch_frcnn.fasterrcnn_resnet50_fpn(
-            pretrained=True,
-            pretrained_backbone=True,
+            weights=torch_frcnn.FasterRCNN_ResNet50_FPN_Weights.DEFAULT,
+            weights_backbone=torch_frcnn.ResNet50_Weights.DEFAULT,
             trainable_backbone_layers=self.trainable_backbone_layers,
         )
         in_features = self.model.roi_heads.box_predictor.cls_score.in_features
@@ -79,7 +79,7 @@ class FasterRcnnModel(pl.LightningModule):
             "detected_boxes": detected_boxes,
         }
 
-    def validation_epoch_end(self, outs):
+    def on_validation_epoch_end(self, outs):
         ground_truth_boxes = []
         detected_boxes = []
         for out in outs:
@@ -100,7 +100,7 @@ class FasterRcnnModel(pl.LightningModule):
         self.cli_logger.info(f"validation_mAP = {map_flt}")
 
         for k, v in per_class.items():
-            name = LisaTrafficLightDataset.INT_TO_CLS[k]
+            name = LTLDDataset.INT_TO_CLS[k]
             ap = v["AP"].astype(np.float64)
             self.log(f"validation_AP_for_{name}", ap)
             self.cli_logger.info(f"validation_AP_for_{name} = {ap}")
@@ -141,7 +141,7 @@ class FasterRcnnModel(pl.LightningModule):
         self.cli_logger.info(f"test_mAP = {map_flt}")
 
         for k, v in per_class.items():
-            name = LisaTrafficLightDataset.INT_TO_CLS[k]
+            name = LTLDDataset.INT_TO_CLS[k]
             ap = v["AP"].astype(np.float64)
             self.log(f"test_AP_for_{name}", ap)
             self.cli_logger.info(f"test_AP_for_{name} = {ap}")
@@ -156,12 +156,12 @@ class FasterRcnnModel(pl.LightningModule):
 
         return optimizer
 
-    def configure_callbacks(self):
-        early_stop = EarlyStopping(
-            monitor="validation_mAP",
-            min_delta=self.early_stopping_min_delta,
-            patience=self.early_stopping_patience,
-            mode="max",
-        )
-        checkpoint = ModelCheckpoint(monitor="validation_mAP", mode="max")
-        return [early_stop, checkpoint]
+    # def configure_callbacks(self):
+        # early_stop = EarlyStopping(
+        #     monitor="validation_mAP",
+        #     min_delta=self.early_stopping_min_delta,
+        #     patience=self.early_stopping_patience,
+        #     mode="max",
+        # )
+        # checkpoint = ModelCheckpoint(monitor="validation_mAP", mode="max")
+        # return [early_stop, checkpoint]
