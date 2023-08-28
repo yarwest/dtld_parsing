@@ -180,15 +180,15 @@ class DriveuImage:
 
         status, img = self.get_image()
 
-        # if status:
-        #     for o in self.objects:
-        #         cv2.rectangle(
-        #             img,
-        #             (o.x, o.y),
-        #             (o.x + o.width, o.y + o.height),
-        #             o.color_from_attributes(),
-        #             2,
-        #         )
+        if status:
+            for o in self.objects:
+                cv2.rectangle(
+                    img,
+                    (o.x, o.y),
+                    (o.x + o.width, o.y + o.height),
+                    o.color_from_attributes(),
+                    2,
+                )
         return img
 
     def get_disparity_image(self):
