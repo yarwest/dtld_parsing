@@ -69,18 +69,16 @@ def main(args):
 
         files_count += 1
 
-        label_dfs.append(pd.DataFrame.from_dict(image["labels"]))
+        df = pd.DataFrame(image["labels"])
+        df = df.drop('attributes', axis=1).assign(**pd.DataFrame(df.attributes.values.tolist()))
+        label_dfs.append(df)
 
     label_df = pd.concat(label_dfs)
 
     print("File count: ", files_count)
 
-    print_unique_lights(label_df)
-    print_separator()
 
-    attributes_df = pd.DataFrame([at for at in label_df.loc[:,"attributes"] ])
-
-    print_missing_values(label_df, attributes_df)
+    print_missing_values(label_df)
     print_separator()
     print_image_analysis(image_paths)
 
@@ -88,16 +86,15 @@ def main(args):
     print_duplicate_files(args.label_file.replace(".json", ""))
 
     print_separator()
-    print_state_distribution(attributes_df)
+    print_state_distribution(label_df)
     print_separator()
-    print_pictogram_distribution(attributes_df)
+    print_pictogram_distribution(label_df)
     print_separator()
-    print_direction_distribution(attributes_df)
+    print_direction_distribution(label_df)
 
-def print_missing_values(df, attr_df):
+def print_missing_values(df):
     print("Empty values")
     print(df.isnull().sum())
-    print(attr_df.isnull().sum())
 
 def print_image_analysis(images):
     # Zbieranie danych na temat pojedynczych klatek
@@ -127,19 +124,13 @@ def print_duplicate_files(path):
     print("Duplikaty:")
     print(all_duplicates["file"])
 
-def print_unique_lights(df):
-    lights = df["track_id"].nunique()
-    light_count = df["track_id"].value_counts()
-    print("Light count: ", lights)
-    print(light_count)
-
-def print_pictogram_distribution(attributes_df):
-    pictogram = attributes_df["pictogram"].unique()
+def print_pictogram_distribution(label_df):
+    pictogram = label_df["pictogram"].unique()
     print("Traffic light pictograms:")
     print(pictogram)
 
-    pictogram_count = attributes_df["pictogram"].value_counts()
-    pictogram_freq = attributes_df["pictogram"].value_counts(normalize=True)
+    pictogram_count = label_df["pictogram"].value_counts()
+    pictogram_freq = label_df["pictogram"].value_counts(normalize=True)
     pictogram_params = pd.DataFrame({"Count": pictogram_count, "Frequency": pictogram_freq})
     print("Probability distribution and class size:")
     print(pictogram_params)
@@ -151,13 +142,13 @@ def print_pictogram_distribution(attributes_df):
     )
     plt.savefig('./out/traffic_pictogram_distribution.png')
 
-def print_state_distribution(attributes_df):
-    states = attributes_df["state"].unique()
+def print_state_distribution(label_df):
+    states = label_df["state"].unique()
     print("Traffic light states:")
     print(states)
 
-    states_count = attributes_df["state"].value_counts()
-    states_freq = attributes_df["state"].value_counts(normalize=True)
+    states_count = label_df["state"].value_counts()
+    states_freq = label_df["state"].value_counts(normalize=True)
     states_params = pd.DataFrame({"Count": states_count, "Frequency": states_freq})
     print("Probability distribution and class size:")
     print(states_params)
@@ -169,13 +160,13 @@ def print_state_distribution(attributes_df):
     )
     plt.savefig('./out/traffic_states_distribution.png')
 
-def print_direction_distribution(attributes_df):
-    directions = attributes_df["direction"].unique()
+def print_direction_distribution(label_df):
+    directions = label_df["direction"].unique()
     print("Traffic light directions:")
     print(directions)
 
-    directions_count = attributes_df["direction"].value_counts()
-    directions_freq = attributes_df["direction"].value_counts(normalize=True)
+    directions_count = label_df["direction"].value_counts()
+    directions_freq = label_df["direction"].value_counts(normalize=True)
     directions_params = pd.DataFrame({"Count": directions_count, "Frequency": directions_freq})
     print("Probability distribution and class size:")
     print(directions_params)
